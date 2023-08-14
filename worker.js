@@ -1,15 +1,6 @@
 const { google } = require('googleapis')
 const { OAuth2Client } = require('google-auth-library')
-
-/**
- * P0 requirements:
- * After reviewing the code below, maybe we don't need the web app part and can just use this CLI utility
- * to save the token to a cloud storage location
- * Therefore, step 1 can be skipped and moved to a P1 scenario (or P2, whichever priority I make for pyublic availability),
- * and jump to 2 having this utility save the token to cloud storage, and then create the app for fetching the token and
- * organizing the videos from the subscriptions.
- * The organization may take some planning as well to determine how to do the search and determination
- */
+const { Storage } = require('@google-cloud/storage')
 
 // Client credentials obtained from the Google Cloud Console
 const clientCredentials = {
@@ -20,6 +11,13 @@ const clientCredentials = {
 
 // OAuth2 client instance
 const oAuth2Client = new OAuth2Client(clientCredentials)
+
+// Initialize storage
+const storage = new Storage({
+  keyFilename: './youtube-smart-playlists-dc8002e14d1a.json'
+})
+const bucketName = 'youtube-smart-playlists'
+const bucket = storage.bucket(bucketName)
 
 function generateAuthUrl() {
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -75,9 +73,17 @@ async function getRecentSubscribedVideos(apiKey, accessToken) {
     }
 }
 
-// Usage example
 const apiKey = require("./credentials")
 
+
+// Put below logic into a function that generates the URL, asks for the code,
+// then pushes it to the cloud storage
+// This function should also do the logic of checking the storage location
+// If the storage location is empty, generate the URL, get the code, save to cloud storage, then return token
+// If location is not empty, create OAuth client using the credentials and check validity
+// If the credentials are expired, use the refresh token to get new tokens and save to cloud storage, then return
+// Otherwise, just return the token
+// Instead of returning the token,
 const authUrl = generateAuthUrl();
 console.log('Please visit the following URL to authorize the application:');
 console.log(authUrl)
@@ -90,6 +96,18 @@ const rl = readline.createInterface({
 
 rl.question('Enter the authorization code from the URL: ', async (code) => {
     rl.close();
+
+    let contents = await bucket.file('token-data').download()
+    console.log(JSON.parse(contents))
+
+    try {
+      contents = {
+        'message': 'Test file2'
+      }
+      await bucket.file('token-data').save(JSON.stringify(contents))
+    } catch(e) {
+      console.log(e)
+    }
 
     const accessToken = await getAccessTokenFromCode(code);
     if (accessToken) {
