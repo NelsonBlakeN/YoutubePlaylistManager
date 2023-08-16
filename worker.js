@@ -2,16 +2,15 @@ const { google } = require('googleapis')
 const { OAuth2Client } = require('google-auth-library')
 const { Storage } = require('@google-cloud/storage')
 
-const { clientCredentials } = require("./credentials")
+const { clientCredentials, bucketName } = require("./credentials")
 
 // OAuth2 client instance
 const oAuth2Client = new OAuth2Client(clientCredentials)
 
 // Initialize storage
 const storage = new Storage({
-  keyFilename: './youtube-smart-playlists-dc8002e14d1a.json'
+  keyFilename: './youtube-smart-playlists-7a9286547c77.json'
 })
-const bucketName = 'youtube-smart-playlists'
 const bucket = storage.bucket(bucketName)
 
 function generateAuthUrl() {
