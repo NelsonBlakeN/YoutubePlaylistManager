@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@google-cloud/storage": "^7.0.1",
     "google-auth-library": "^8.9.0",
     "googleapis": "^120.0.0"
   }
