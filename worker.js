@@ -2,12 +2,7 @@ const { google } = require('googleapis')
 const { OAuth2Client } = require('google-auth-library')
 const { Storage } = require('@google-cloud/storage')
 
-// Client credentials obtained from the Google Cloud Console
-const clientCredentials = {
-    clientId: '971882161290-54tr39ch89jf8vcd93ab0lr0c3tntn33.apps.googleusercontent.com',
-    clientSecret: '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',
-    redirectUri: 'https://www.example.com'
-}
+const { clientCredentials } = require("./credentials")
 
 // OAuth2 client instance
 const oAuth2Client = new OAuth2Client(clientCredentials)
