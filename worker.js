@@ -37,43 +37,6 @@ async function getAccessTokenFromCode(code) {
     }
 }
 
-async function getRecentSubscribedVideos(apiKey, accessToken) {
-    try {
-        const youtube = google.youtube({
-            version: 'v3',
-            auth: apiKey
-        })
-
-        // Retrieve the list of subscribed channels
-        const subscriptions = await youtube.subscriptions.list({
-            part: 'snippet',
-            mine: true,
-            maxResults: 50,
-            access_token: accessToken,
-        });
-
-        const channelIds = subscriptions.data.items.map(item => item.snippet.resourceId.channelId);
-
-        // Retrieve the most recent videos from each channel
-        const videos = []
-        for (const channelId of channelIds) {
-            const searchResponse = await youtube.search.list({
-                part: 'snippet',
-                channelId: channelId,
-                maxResults: 10,
-                order: 'date'
-            });
-
-            videos.push(...searchResponse.data.items)
-        }
-
-        return videos
-    } catch (error) {
-        console.error('Error retrieving recent subscribed videos:', error)
-        return null
-    }
-}
-
 async function getToken() {
   // Get data from storage
   let tokens;
@@ -145,36 +108,3 @@ main().then(() => {
   console.log(e)
   console.log("Completed with errors")
 })
-
-// rl.question('Enter the authorization code from the URL: ', async (code) => {
-//     rl.close();
-
-//     await getToken()
-//     return
-
-//     let contents = await bucket.file('token-data').download()
-//     console.log(JSON.parse(contents))
-
-//     try {
-//       contents = {
-//         'message': 'Test file2'
-//       }
-//       await bucket.file('token-data').save(JSON.stringify(contents))
-//     } catch(e) {
-//       console.log(e)
-//     }
-
-//     const accessToken = await getAccessTokenFromCode(code);
-//     if (accessToken) {
-//         getRecentSubscribedVideos(apiKey, accessToken)
-//             .then(videos => {
-//               console.log("Videos:", videos)
-//                 if (videos) {
-//                     console.log('Recent subscribed videos:');
-//                     videos.forEach(video => {
-//                         console.log(video.snippet.title)
-//                     })
-//                 }
-//             })
-//     }
-// })
